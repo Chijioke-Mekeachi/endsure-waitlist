@@ -23,16 +23,17 @@ export default function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <motion.button
+            <motion.a
+              href="#waitlist"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full sm:w-auto bg-emerald text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg shadow-emerald/20 hover:bg-emerald/90 transition-all flex items-center justify-center gap-2"
             >
               Join the Waitlist <ArrowRight className="w-5 h-5" />
-            </motion.button>
-            <button className="w-full sm:w-auto px-8 py-4 rounded-full text-lg font-semibold text-navy hover:bg-navy/5 transition-all">
+            </motion.a>
+            <a href="#how-it-works" className="w-full sm:w-auto px-8 py-4 rounded-full text-lg font-semibold text-navy hover:bg-navy/5 transition-all text-center">
               Learn More
-            </button>
+            </a>
           </div>
         </motion.div>
 

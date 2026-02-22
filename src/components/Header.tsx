@@ -1,6 +1,4 @@
 import { motion } from "motion/react";
-import { ShieldCheck } from "lucide-react";
-
 export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-navy/5">
@@ -18,13 +16,14 @@ export default function Header() {
           <a href="#security" className="hover:text-navy transition-colors">Security</a>
         </nav>
 
-        <motion.button
+        <motion.a
+          href="#waitlist"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="bg-navy text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:bg-navy/90 transition-all"
         >
           Join Waitlist
-        </motion.button>
+        </motion.a>
       </div>
     </header>
   );

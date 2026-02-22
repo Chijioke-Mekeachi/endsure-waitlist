@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, Loader2 } from "lucide-react";
-
-const SUPABASE_URL =
-  import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY =
-  import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_ANON_KEY;
+import { getSupabaseHeaders, SUPABASE_URL } from "../lib/supabase";
 
 type WaitlistError = {
   message?: string;
@@ -28,9 +23,9 @@ function generateReferralCode(length = 8) {
 }
 
 async function joinWaitlist(email: string, referredBy: string | null) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_URL) {
     throw new Error(
-      "Waitlist is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      "Waitlist is not configured. Add NEXT_PUBLIC_SUPABASE_URL."
     );
   }
 
@@ -38,9 +33,7 @@ async function joinWaitlist(email: string, referredBy: string | null) {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        ...getSupabaseHeaders(),
         Prefer: "return=representation",
       },
       body: JSON.stringify({
