@@ -7,7 +7,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-20 h-20 rounded-lg flex items-center justify-center">
-            <img src={'/public/logo.png'}  className="rounded-[20%]"/>
+            <img src={'/logo.png'}  className="rounded-[20%]"/>
           </div>
           <span className="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-navy to-green-500 bg-clip-text text-transparent">EndSure</span>
         </div>

@@ -46,7 +46,7 @@ export default function Hero() {
           <div className="bg-offwhite rounded-3xl border border-navy/5 p-4 md:p-8 shadow-2xl shadow-navy/5 overflow-hidden">
              <div className="aspect-[16/9] bg-white rounded-2xl border border-navy/5 flex items-center justify-center overflow-hidden">
                 <img 
-                  src="/public/mainpage.png" 
+                  src="/mainpage.png" 
                   alt="EndSure Dashboard Preview" 
                   className="w-full h-full object-cover opacity-80"
                   referrerPolicy="no-referrer"
