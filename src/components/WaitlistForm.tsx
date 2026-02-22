@@ -2,21 +2,107 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
+const SUPABASE_URL =
+  import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY =
+  import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+type WaitlistError = {
+  message?: string;
+  code?: string;
+  details?: string;
+  hint?: string;
+};
+
+function generateReferralCode(length = 8) {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const randomValues = crypto.getRandomValues(new Uint8Array(length));
+  let result = "";
+
+  for (let i = 0; i < length; i++) {
+    result += alphabet[randomValues[i] % alphabet.length];
+  }
+
+  return result;
+}
+
+async function joinWaitlist(email: string, referredBy: string | null) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error(
+      "Waitlist is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
+  }
+
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify({
+        email,
+        referral_code: generateReferralCode(),
+        referred_by: referredBy,
+      }),
+    });
+
+    if (response.ok) {
+      return;
+    }
+
+    const errors = (await response.json()) as WaitlistError[] | WaitlistError;
+    const error = Array.isArray(errors) ? errors[0] : errors;
+    const reason = `${error?.message || ""} ${error?.details || ""}`.toLowerCase();
+
+    if (
+      response.status === 409 &&
+      reason.includes("referral_code") &&
+      attempt < 3
+    ) {
+      continue;
+    }
+
+    if (response.status === 409 && reason.includes("email")) {
+      throw new Error("This email is already on the waitlist.");
+    }
+
+    throw new Error(error?.message || "Failed to join waitlist. Please try again.");
+  }
+
+  throw new Error("Failed to generate a unique referral code. Please try again.");
+}
+
 export default function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setStatus("success");
-    setEmail("");
-    setName("");
+    setErrorMessage("");
+
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const referredBy = params.get("ref");
+
+      await joinWaitlist(normalizedEmail, referredBy);
+
+      setStatus("success");
+      setEmail("");
+      setName("");
+    } catch (error) {
+      setStatus("idle");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Something went wrong. Please try again."
+      );
+    }
   };
 
   return (
@@ -95,6 +181,9 @@ export default function WaitlistForm() {
                     )}
                   </motion.button>
                 </form>
+                {errorMessage ? (
+                  <p className="mt-4 text-sm text-red-600">{errorMessage}</p>
+                ) : null}
                 
                 <p className="mt-6 text-sm text-navy/40">
                   No spam. Early access updates only. Your data is secure.
